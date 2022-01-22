@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
-import useChain from "hooks/useChain";
-import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+<<<<<<< HEAD
 import { PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
+=======
+import { AvaxLogo, PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
+import { useChain } from "react-moralis";
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
 
 const styles = {
   item: {
@@ -77,13 +80,23 @@ const menuItems = [
     key: "0xa86a",
     value: "Avalanche",
     icon: <AvaxLogo />,
+<<<<<<< HEAD
   },*/
+=======
+  },
+  {
+    key: "0xa869",
+    value: "Avalanche Testnet",
+    icon: <AvaxLogo />,
+  },
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
 ];
 
 function Chains() {
-  const { switchNetwork } = useChain();
-  const { chainId } = useMoralisDapp();
+  const { switchNetwork, chainId, chain } = useChain();
   const [selected, setSelected] = useState({});
+
+  console.log("chain", chain)
 
   useEffect(() => {
     if (!chainId) return null;
@@ -104,17 +117,13 @@ function Chains() {
           <span style={{ marginLeft: "5px" }}>{item.value}</span>
         </Menu.Item>
       ))}
-    </Menu> 
+    </Menu>
   );
 
   return (
     <div>
       <Dropdown overlay={menu} trigger={["click"]}>
-        <Button
-          key={selected?.key}
-          icon={selected?.icon}
-          style={{ ...styles.button, ...styles.item }}
-        >
+        <Button key={selected?.key} icon={selected?.icon} style={{ ...styles.button, ...styles.item }}>
           <span style={{ marginLeft: "5px" }}>{selected?.value}</span>
           <DownOutlined />
         </Button>

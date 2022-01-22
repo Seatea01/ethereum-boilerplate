@@ -2,6 +2,8 @@
 
 > React components and hooks for fast building dApps without running own backend
 
+🚀DEMO: https://ethereum-boilerplate.github.io/ethereum-boilerplate
+
 This boilerplate is built on [react-moralis](https://github.com/MoralisWeb3/react-moralis) and [Moralis](https://moralis.io?utm_source=github&utm_medium=readme&utm_campaign=ethereum-boilerplate). Also has its own context provider for quick access to `chainId` or `ethAddress`
 
 There are many components in this boilerplate that do not require an active web3 provider, they use Moralis Web3 API. Moralis supports the most popular blockchains and their test networks. You can find a list of all available networks in [Moralis Supported Chains](https://docs.moralis.io/moralis-server/web3-sdk/intro#supported-chains)
@@ -12,6 +14,9 @@ Please check the [official documentation of Moralis](https://docs.moralis.io/#us
 
 # ⭐️ `Star us`
 If this boilerplate helps you build Ethereum dapps faster - please star this project, every star makes us very happy!
+
+# 🤝 `Need help?`
+If you need help with setting up the boilerplate or have other questions - don't hesitate to write in our community forum and we will check asap. [Forum link](https://forum.moralis.io/t/ethereum-boilerplate-questions/3951/86). The best thing about this boilerplate is the super active community ready to help at any time! We help each other.
 
 # 🚀 Quick Start
 
@@ -51,6 +56,7 @@ yarn start
   - [`<Wallet />`](#wallet-)
   - [`<Blockie />`](#blockie-)
   - [`<NativeBalance />`](#nativebalance-)
+  - [`/<NFTBalance />`](#nftbalance)
   - [`<Contract />`](#contract-)
 - [🧰 Ethereum Hooks](#-ethereum-hooks)
   - [`useAPIContract()`](#useapicontract)  
@@ -59,13 +65,15 @@ yarn start
   - [`useERC20Transfers()`](#useerc20transfers)
   - [`useNativeBalance()`](#usenativebalance)
   - [`useNativeTransactions()`](#usenativetransactions)
-  - [`useNFTBalance()`](#usenftbalance)
-  - [`useNFTTransfers()`](#usenfttransfers)
+  - [`useNFTBalances()`](#usenftbalances)
   - [`useNFTTransfers()`](#usenfttransfers)
   - [`useIPFS()`](#useipfs)
   - [`useChain()`](#usechain)
   - [`useTokenPrice()`](#usetokenprice)
-  - [`useInchDex()`](#useinchdex)
+  - [`DEX Hooks`](#dexhooks)
+    - [`useOneInchQuote()`](#useoneinchquote)
+    - [`useInchDex()`](#useinchdex)
+  
 
 # 🏗 Ethereum Components
 
@@ -106,9 +114,10 @@ yarn start
 
 ### `<AddressInput />`
 
-![addressInput](https://user-images.githubusercontent.com/78314301/141116003-ad08dbe0-f06f-4718-be54-0c5990103510.gif)
+![input](https://user-images.githubusercontent.com/78314301/143021458-e3510069-c980-453f-8215-7943b4a0239b.gif)
 
-📫 `<AddressInput />` : Input for eth address. Displays [Blockie](https://www.npmjs.com/package/react-blockies) avatar for the entered wallet. Helps to validate addresses. After entering 42 characters (wallet length) freezes inout and calls `setValidatedAddress`
+📫 `<AddressInput />` : Input for eth address. Displays [Blockie](https://www.npmjs.com/package/react-blockies) avatar for the entered wallet. Helps to validate addresses. After entering 42 characters (0x... wallet length) or valid crypto domain freezes input and calls `setValidatedAddress`. 
+Supported domains: `[".eth", ".crypto", ".coin", ".wallet", ".bitcoin", ".x", ".888", ".nft", ".dao", ".blockchain"]`
 
 **Options**:
 - autoFocus (optional): focuses object after rendering the component. 
@@ -209,6 +218,8 @@ const [address, setAddress] = useState();
 
 ### `<NativeBalance />`
 
+### `<NFTBalance />`
+
 ### `<Contract />`
 
 # 🧰 Ethereum Hooks
@@ -226,8 +237,10 @@ const [address, setAddress] = useState();
 
 **Example**:
 ```jsx
+import { useAPIContract } from "react-moralis"
+
 const ShowUniswapObserveValues = () => {
-  const { runContractFunction, contractResponse, error, isLoading } = useAPIContract({
+  const { runContractFunction, data, error, isLoading, isFetching } = useAPIContract({
     abi: usdcEthPoolAbi,
     address: usdcEthPoolAddress,
     functionName: "observe",
@@ -258,6 +271,8 @@ const ShowUniswapObserveValues = () => {
 
 **Example**:
 ```jsx
+import { useWeb3Contract } from "react-moralis"
+
 const ShowUniswapObserveValues = () => {
   const { runContractFunction, contractResponse, error, isRunning, isLoading } = useWeb3Contract({
     abi: usdcEthPoolAbi,
@@ -277,7 +292,7 @@ const ShowUniswapObserveValues = () => {
 }
 ```
 
-### `useERC20Balance()` 
+### `useERC20Balances()` 
 
 💰 Gets all token balances of a current user or specified address. 
 
@@ -286,10 +301,42 @@ const ShowUniswapObserveValues = () => {
 - `address` (optional): A user address (i.e. 0x1a2b3x...). If specified, the user attached to the query is ignored and the address will be used instead.
 - `to_block` (optional): The block number on which the balances should be checked
 
-**Returns** (Object) : number of tokens and the array of token objects
-
+**Example**
 ```jsx
-const { fetchERC20Balance, assets } = useERC20Balance({ chain : "eth" });
+import { useERC20Balances } from "react-moralis";
+
+const { fetchERC20Balances, data, isLoading, isFetching, error } = useERC20Balances();
+
+const ERC20Balances = () => {
+  return (
+    <div>
+      {error && <>{JSON.stringify(error)}</>}
+      <button onClick={() => fetchERC20Balances({ params: { chain: "0x1" } })}>Refetch</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+
+```
+
+**Example return** (Object)
+```json
+{
+  "total": 1,
+  "page": 0,
+  "page_size": 500,
+  "result": [
+    {
+      "token_address": "0x2d30ca6f024dbc1307ac8a1a44ca27de6f797ec22ef20627a1307243b0ab7d09",
+      "name": "Kylin Network",
+      "symbol": "KYL",
+      "logo": "https://cdn.moralis.io/eth/0x67b6d479c7bb412c54e03dca8e1bc6740ce6b99c.png",
+      "thumbnail": "https://cdn.moralis.io/eth/0x67b6d479c7bb412c54e03dca8e1bc6740ce6b99c_thumb.png",
+      "decimals": "18",
+      "balance": "123456789"
+    }
+  ]
+}
 ```
 
 ### `useERC20Transfers()` 
@@ -306,32 +353,81 @@ const { fetchERC20Balance, assets } = useERC20Balance({ chain : "eth" });
 - `offset` (optional): Offset.
 - `limit` (optional): Limit.
 
-**Returns** (Array) : ERC20 token transfers
-
+**Example**
 ```jsx
-const { fetchERC20Transfers, ERC20Transfers } = useERC20Transfers({ chain : "eth" });
+import { useERC20Transfers } from "react-moralis";
+
+const { fetchERC20Transfers, data, error, isLoading, isFetching, } = useERC20Transfers();
+
+const ERC20Transfers = () => {
+  return (
+    <div>
+      {error && <>{JSON.stringify(error)}</>}
+      <button onClick={() => fetchERC20Transfers({ params: { chain: "0x1" } })}>Refetch</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+
+```
+
+**Example return** (Object)
+```json
+{
+  "total": 1,
+  "page": 0,
+  "page_size": 500,
+  "result": [
+    {
+      "transaction_hash": "0x2d30ca6f024dbc1307ac8a1a44ca27de6f797ec22ef20627a1307243b0ab7d09",
+      "address": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "block_timestamp": "2021-04-02T10:07:54.000Z",
+      "block_number": "12526958",
+      "block_hash": "0x0372c302e3c52e8f2e15d155e2c545e6d802e479236564af052759253b20fd86",
+      "to_address": "0x62AED87d21Ad0F3cdE4D147Fdcc9245401Af0044",
+      "from_address": "0xd4a3BebD824189481FC45363602b83C9c7e9cbDf",
+      "value": "650000000000000000"
+    }
+  ]
+}
 ```
 
 ### `useNativeBalance()` 
 
-💰 Gets native balance for a current user or specified address. The `nativeName` from `useNativeBalance()` shows name of chain(Example: "BNB", "ETH", ...)
+💰 Gets native balance for a current user or specified address.
 
 **Options**:
 - `chain` (optional): The blockchain to get data from. Valid values are listed on the intro page in the Transactions and Balances section. Default value: current chain.
 - `address` (optional): A user address (i.e. 0x1a2b3x...). If specified, the user attached to the query is ignored and the address will be used instead.
 - `to_block` (optional): The block number on which the balances should be checked
 
-**Returns** (Object) : { inWei: balance in Wei , formatted: balance in Eth style }
-
 **Example**:
 ```jsx
+import { useNativeBalance } from "react-moralis";
+
 function NativeBalance() {
-  const { getBalance, balance, nativeName, error, isLoading } = useNativeBalance({ chain : "eth" });
-  return (
-    <div>{`${balance.formatted} ${nativeName}`}</div>
-  );
+  const { getBalance, data: balance, nativeToken, error, isLoading } = useNativeBalance({ chain : "ropsten" });
+
+  return <div>{balance.formatted}</div>;
 }
 ```
+**Example return of balance** (Object)
+```jsx
+{
+  balance: '996869309795359886',
+  formatted: '0.9969 ROP'
+}
+```
+
+**Example return of nativeToken** (Object)
+```jsx
+{
+  name: 'Ropsten Ether',
+  symbol: 'ROP',
+  decimals: 18
+}
+```
+
 
 ### `useNativeTransactions()` 
 
@@ -347,17 +443,302 @@ function NativeBalance() {
 - `offset` (optional): Offset.
 - `limit` (optional): Limit.
 
-**Returns** (Array) : native transactions
+**Example**
+```jsx
+import { useNativeTransactions } from "react-moralis";
 
-### `useNFTBalance()` 
+const { getNativeTransations, data, chainId, error, isLoading, isFetching } = useNativeTransactions();
+
+const NativeTransactions = () => {
+  return (
+    <div>
+      {error && <>{JSON.stringify(error)}</>}
+      <button onClick={() => getNativeTransations({ params: { chain: "0x1" } })}>Refetch</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+
+```
+
+**Example return** (Object)
+```json
+{
+  "total": 1,
+  "page": 0,
+  "page_size": 500,
+  "result": [
+    {
+      "hash": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "nonce": "326595425",
+      "transaction_index": "25",
+      "from_address": "0xd4a3BebD824189481FC45363602b83C9c7e9cbDf",
+      "to_address": "0xa71db868318f0a0bae9411347cd4a6fa23d8d4ef",
+      "value": "650000000000000000",
+      "gas": "6721975",
+      "gas_price": "20000000000",
+      "input": "string",
+      "receipt_cumulative_gas_used": "1340925",
+      "receipt_gas_used": "1340925",
+      "receipt_contract_address": "0x1d6a4cf64b52f6c73f201839aded7379ce58059c",
+      "receipt_root": "string",
+      "receipt_status": "1",
+      "block_timestamp": "2021-04-02T10:07:54.000Z",
+      "block_number": "12526958",
+      "block_hash": "0x0372c302e3c52e8f2e15d155e2c545e6d802e479236564af052759253b20fd86"
+    }
+  ]
+}
+```
+
+### `useNFTBalances()` 
+
+🎨 Gets all NFTs from the current user or address. Supports both ERC721 and ERC1155. Returns an object with the number of NFT objects and the array of NFT objects.
+
+**Options**:
+- `chain` (optional): The blockchain to get data from. Valid values are listed on the intro page in the Transactions and Balances section. Default value: current chain (if the chain is not supported it will use the Eth chain).
+- `address` (optional): A user address (i.e. 0x1a2b3x...). If specified, the user attached to the query is ignored and the address will be used instead.
+
+**Example**
+```jsx
+import { useNFTBalances } from "react-moralis";
+
+const { getNFTBalances, data, error, isLoading, isFetching } = useNFTBalances();
+
+const NFTBalances = () => {
+  return (
+    <div>
+      {error && <>{JSON.stringify(error)}</>}
+      <button onClick={() => getNFTBalances({ params: { chain: "0x1" } })}>Refetch NFTBalances</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+```
+
+**Example return** (Object)
+```json
+{
+  "total": 1,
+  "page": 0,
+  "page_size": 500,
+  "result": [
+    {
+      "token_address": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "token_id": "15",
+      "contract_type": "ERC721",
+      "owner_of": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "block_number": "88256",
+      "block_number_minted": "88256",
+      "token_uri": "string",
+      "metadata": "string",
+      "synced_at": "string",
+      "amount": "1",
+      "name": "CryptoKitties",
+      "symbol": "RARI"
+    }
+  ]
+}
+```
 
 ### `useNFTTransfers()` 
 
+🎨 Gets the NFT transfers. Returns an object with the number of NFT transfers and the array of NFT transfers.
+
+**Options**:
+- `chain` (optional): The blockchain to get data from. Valid values are listed on the intro page in the Transactions and Balances section. Default value: current chain (if the chain is not supported it will use the Eth chain).
+- `address` (optional): A user address (i.e. 0x1a2b3x...). If specified, the user attached to the query is ignored and the address will be used instead.
+- `offset` (optional): Offset.
+- `direction` (optional): The transfer direction. Available values : both, to, from . Default value : both.
+- `format` (optional): he format of the token id. Available values : decimal, hex. Default value : decimal.
+- `limit` (optional): Limit.
+
+**Example**
+```jsx
+import { useNFTTransfers } from "react-moralis";
+
+const { fetch, data, error, isLoading, isFetching } = useNFTTransfers();
+
+const NFTTransfers = () => {
+  return (
+    <div>
+      {error && <>{JSON.stringify(error)}</>}
+      <button onClick={() => fetch({ params: { chain: "0x1" } })}>Refetch</button>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+```
+
+**Example return** (Object)
+```json
+{
+  "total": 1,
+  "page": 0,
+  "page_size": 500,
+  "result": [
+    {
+      "token_address": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "token_id": "15",
+      "from_address": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "to_address": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "amount": "1",
+      "contract_type": "ERC721",
+      "block_number": "88256",
+      "block_timestamp": "2021-06-04T16:00:15",
+      "block_hash": "string",
+      "transaction_hash": "0x057Ec652A4F150f7FF94f089A38008f49a0DF88e",
+      "transaction_type": "string",
+      "transaction_index": "string",
+      "log_index": 0
+    }
+  ]
+}
+```
+
 ### `useChain()` 
 
-### `useInchDex()` 
+⛓ Hook for fast network switching or getting info about current network. To change the current network, set the target chainId to `switchNetwork` function. If the user does not have the target network in the wallet, it will automatically ask permission to add it to the wallet. 
+
+**Example**:
+```jsx
+import { useChain } from "react-moralis";
+
+function Chains() {
+  const { switchNetwork, chainId, chain, account } = useChain();
+  return (
+    <>
+      <button onClick={() => switchNetwork("0x1")}>Switch to Ethereum</button>
+      <p>Current chainId: {chainId}</p>
+    </>
+  );
+}
+```
 
 ### `useTokenPrice()` 
 
+<<<<<<< HEAD
 ### `useIPFS()` 
 # nftharbour
+=======
+💰 Gets the price nominated in the native token and usd for a given token contract address
+
+**Options**:
+- `chain` (optional): The blockchain to get data from. Valid values are listed on the intro page in the Transactions and Balances section. Default value: current chain (if the chain is not supported it will use the Eth chain).
+- `address` (optional): A user address (i.e. 0x1a2b3x...). If specified, the user attached to the query is ignored and the address will be used instead.
+- `exchange` (optional): The factory name or address of the token exchange. Possible exchanges, for different chains are: ETH mainnet: `uniswap-v3`, `sushiswap`, `uniswap-v2`, BSC mainnet: `pancakeswap-v2`, `pancakeswap-v1`. Polygon mainnet: `quickswap`. *If no exchange is specified, all exchanges are checked (in the order as listed above) until a valid pool has been found. Note that this request can take more time. So specifying the exchange will result in faster responses most of the time.*
+- `to_block` (optional): Returns the price for a given blocknumber (historical price-data).
+
+**Example**
+```jsx
+import { useTokenPrice } from "react-moralis";
+
+const TokenPrice = () => {
+  const { fetchTokenPrice, data: formattedData, error, isLoading, isFetching } = useTokenPrice({ address: "0x1f9840...1f984", chain: "eth" });
+
+  return (
+    <div>
+        {error && <>{JSON.stringify(error)}</>}
+        <button onClick={() => fetchTokenPrice({ params: { address: "0x6...361",  chain: "bsc" } })}>Refetch</button>
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+**Example return** (Object)
+```json
+{
+  "exchangeAddress": "0x1f98431c8ad98523631ae4a59f267346ea31f984",
+  "exchangeName": "Uniswap v3",
+  "formattedNative": "0.004695 ETH",
+  "formattedUsd": "$20.38",
+  "nativePrice": {
+    "decimals": 18,
+    "name": "Ether",
+    "symbol": "ETH",
+    "value": "4695118425598734"
+  },
+  "usdPrice": 20.37791922835578
+}
+
+```
+
+### `DEX Hooks` 
+
+### `useOneInchQuote()` 
+
+💸 Hook for getting swap quote info.
+
+**Example**:
+```jsx
+import { useOneInchQuote } from "react-moralis";
+
+function Quote() {
+  const { getQuote, data, isFetching, isLoading, error } = useOneInchQuote({
+    chain: 'bsc', // The blockchain you want to use (eth/bsc/polygon)
+    fromTokenAddress: '0x0da6ed8b13214ff28e9ca979dd37439e8a88f6c4', // The token you want to swap
+    toTokenAddress: '0x6fd7c98458a943f469e1cf4ea85b173f5cd342f4', // The token you want to receive
+    amount: 1000,
+  });
+  return (
+     <div>
+        {error && <>{JSON.stringify(error)}</>}
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+### `useOneInchQuote()` 
+
+💸 Hook for swap.
+
+**Example**:
+```jsx
+import { useOneInchQuote } from "react-moralis";
+
+function Swap() {
+  const { swap, data, isFetching, isLoading, error } = useOneInchSwap();
+  
+  const options = {
+    chain: 'bsc', // The blockchain you want to use (eth/bsc/polygon)
+    fromTokenAddress: '0x0da6ed8b13214ff28e9ca979dd37439e8a88f6c4', // The token you want to swap
+    toTokenAddress: '0x6fd7c98458a943f469e1cf4ea85b173f5cd342f4', // The token you want to receive
+    amount: 1000,
+    fromAddress: '0x6217e65d864d77DEcbFF0CFeFA13A93f7C1dD064', // Your wallet address
+    slippage: 1,
+  }
+  
+  return (
+     <div>
+        {error && <>{JSON.stringify(error)}</>}
+        <button onClick={()=> swap(options)}>Swap</button>
+    </div>
+  );
+}
+```
+
+### `useOneInchTokens()` 
+
+💸 Hook for get supported token list.
+
+**Example**:
+```jsx
+import { useOneInchQuote } from "react-moralis";
+
+const SupportedTokens = () => {
+  const { getSupportedTokens, data, isFetching, isLoading, error } = useOneInchTokens({ chain: 'bsc' });
+  
+  return (
+     <div>
+        {error && <>{JSON.stringify(error)}</>}
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+### Where to host your dApp?
+
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341

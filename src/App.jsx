@@ -1,6 +1,7 @@
 import { Navbar, Welcome, Services, Transaction } from './components';
 import { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
+<<<<<<< HEAD
 import logo from 'images/Logo.png';
 import {
   BrowserRouter as Router,
@@ -9,18 +10,31 @@ import {
   NavLink,
   Redirect,
 } from "react-router-dom";
+=======
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
 import Account from "components/Account";
 import Chains from "components/Chains";
 import NFTBalance from "components/NFTBalance";
+<<<<<<< HEAD
 import Home from "components/Home";
 import NFTTokenIds from "components/NFTTokenIds";
 import NFTMarketTransactions from "components/Transactions";
 import SearchCollections from "components/SearchCollections";
 import { Menu, Layout, } from "antd";
+=======
+import Wallet from "components/Wallet";
+import { Layout, Tabs } from "antd";
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Text from "antd/lib/typography/Text";
+<<<<<<< HEAD
+=======
+import Ramper from "components/Ramper";
+import MenuItems from "./components/MenuItems";
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -63,8 +77,7 @@ const styles = {
   }
 };
 const App = ({ isServerInfo }) => {
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } =
-    useMoralis();
+  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading } = useMoralis();
 
     const [inputValue, setInputValue] = useState("explore")
 
@@ -80,6 +93,7 @@ const App = ({ isServerInfo }) => {
       
       <Router>
         <Header style={styles.header}>
+<<<<<<< HEAD
           
           <img src={logo} alt="logo" style={styles.mylogo} />
           <SearchCollections setInputValue={setInputValue} />
@@ -109,6 +123,10 @@ const App = ({ isServerInfo }) => {
             </Menu.Item>
            
           </Menu>
+=======
+          <Logo />
+          <MenuItems />
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
           <div style={styles.headerRight}>
             <Chains />
             
@@ -116,10 +134,41 @@ const App = ({ isServerInfo }) => {
             <Account />
           </div>
         </Header>
+
         <div style={styles.content}>
           <Switch>
+<<<<<<< HEAD
           <Route path="/home">
               <Home />
+=======
+            <Route exact path="/quickstart">
+              <QuickStart isServerInfo={isServerInfo} />
+            </Route>
+            <Route path="/wallet">
+              <Wallet />
+            </Route>
+            <Route path="/1inch">
+              <Tabs defaultActiveKey="1" style={{ alignItems: "center" }}>
+                <Tabs.TabPane tab={<span>Ethereum</span>} key="1">
+                  <InchDex chain="eth" />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={<span>Binance Smart Chain</span>} key="2">
+                  <InchDex chain="bsc" />
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={<span>Polygon</span>} key="3">
+                  <InchDex chain="polygon" />
+                </Tabs.TabPane>
+              </Tabs>
+            </Route>
+            <Route path="/erc20balance">
+              <ERC20Balance />
+            </Route>
+            <Route path="/onramp">
+              <Ramper />
+            </Route>
+            <Route path="/erc20transfers">
+              <ERC20Transfers />
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
             </Route>
             <Route path="/nftBalance">
               <NFTBalance />
@@ -127,13 +176,27 @@ const App = ({ isServerInfo }) => {
             <Route path="/nftMarket">
               <NFTTokenIds inputValue={inputValue} setInputValue={setInputValue}/>
             </Route>
+<<<<<<< HEAD
             <Route path="/transactions">
               <NFTMarketTransactions />
+=======
+            <Route path="/">
+              <Redirect to="/quickstart" />
+            </Route>
+            <Route path="/ethereum-boilerplate">
+              <Redirect to="/quickstart" />
+            </Route>
+            <Route path="/nonauthenticated">
+              <>Please login using the "Authenticate" button</>
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
             </Route>
             
             
           </Switch>
+<<<<<<< HEAD
           <Redirect to="/home" />
+=======
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
         </div>
       </Router>
 
@@ -154,6 +217,7 @@ const App = ({ isServerInfo }) => {
 
 export const Logo = () => (
   <div style={{ display: "flex" }}>
+<<<<<<< HEAD
     <svg
       width="60"
       height="38"
@@ -161,6 +225,9 @@ export const Logo = () => (
       fill="none"
       //xmlns="http://www.w3.org/2000/svg"
     >
+=======
+    <svg width="60" height="38" viewBox="0 0 50 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+>>>>>>> 08e7a587df27038d05c16480929cffe4848e4341
       <path
         d="M43.6871 32.3986C43.5973 32.4884 43.53 32.5782 43.4402 32.6905C43.53 32.6007 43.5973 32.5109 43.6871 32.3986Z"
         fill="black"
